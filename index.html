@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FootApi - Match Best Players</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .match-info {
+            margin-bottom: 20px;
+        }
+        .player-card {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+        .error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+            margin: 20px 0;
+        }
+        .note {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #3367d6;
+        }
+        .player-list {
+            margin-top: 20px;
+        }
+        .team-section {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>FootApi - Match Best Players</h1>
+        <p>View the best performing players from the selected match.</p>
+        
+        <div class="note">
+            <h3>API Rate Limit Information</h3>
+            <p>This demo app is using a RapidAPI key for the footapi7 API. This API has the following limitations:</p>
+            <ul>
+                <li>Free tier users have a limited number of requests per day</li>
+                <li>When you exceed this limit, you'll receive a 429 error</li>
+                <li>If you're consistently seeing rate limit errors, consider using your own API key</li>
+            </ul>
+        </div>
+        
+        <button id="fetchBtn">Load Match Players</button>
+        <button id="showSampleBtn" style="background-color: #28a745; margin-left: 10px;">Show Sample Data</button>
+        
+        <div id="loading" class="loading">Loading match data...</div>
+        <div id="error" class="error"></div>
+        
+        <div id="matchInfo" class="match-info"></div>
+        
+        <div id="playerData">
+            <div id="homeTeam" class="team-section">
+                <h2>Home Team Best Players</h2>
+                <div id="homeTeamPlayers" class="player-list"></div>
+            </div>
+            
+            <div id="awayTeam" class="team-section">
+                <h2>Away Team Best Players</h2>
+                <div id="awayTeamPlayers" class="player-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elements
+        const fetchBtn = document.getElementById('fetchBtn');
+        const loadingEl = document.getElementById('loading');
+        const errorEl = document.getElementById('error');
+        const matchInfoEl = document.getElementById('matchInfo');
+        const homeTeamPlayersEl = document.getElementById('homeTeamPlayers');
+        const awayTeamPlayersEl = document.getElementById('awayTeamPlayers');
+        
+        // Fetch match data
+        function fetchMatchPlayers() {
+            // Reset previous data
+            matchInfoEl.innerHTML = '';
+            homeTeamPlayersEl.innerHTML = '';
+            awayTeamPlayersEl.innerHTML = '';
+            
+            // Show loading, hide error
+            loadingEl.style.display = 'block';
+            errorEl.style.display = 'none';
+            
+            const data = null;
+            const xhr = new XMLHttpRequest();
+            xhr.withCredentials = true;
+
+            xhr.addEventListener('readystatechange', function () {
+                if (this.readyState === this.DONE) {
+                    console.log("API call completed with status:", this.status);
+                    
+                    // Hide loading
+                    loadingEl.style.display = 'none';
+                    
+                    // Check for network error (status 0)
+                    if (this.status === 0) {
+                        errorEl.innerHTML = `
+                            <h3>Network Error (Status 0)</h3>
+                            <p>Could not connect to the API server. This could be due to:</p>
+                            <ul>
+                                <li>CORS (Cross-Origin Resource Sharing) restrictions</li>
+                                <li>Network connectivity issues</li>
+                                <li>The API server is down or unreachable</li>
+                                <li>Browser security settings blocking the request</li>
+                            </ul>
+                            <h4>Displaying sample data instead...</h4>
+                        `;
+                        errorEl.style.display = 'block';
+                        
+                        // Show sample data instead
+                        displaySampleData();
+                        return;
+                    }
+                    
+                    // Check for rate limit error (429)
+                    if (this.status === 429) {
+                        errorEl.innerHTML = `
+                            <h3>API Rate Limit Exceeded (Status 429)</h3>
+                            <p>You've sent too many requests to the API in a short period of time.</p>
+                            <h4>Possible solutions:</h4>
+                            <ul>
+                                <li>Wait a few minutes before trying again</li>
+                                <li>Check your RapidAPI account dashboard for usage limits</li>
+                                <li>Upgrade your API subscription plan if you need more requests</li>
+                            </ul>
+                            <h4>Displaying sample data instead...</h4>
+                        `;
+                        errorEl.style.display = 'block';
+                        
+                        // Show sample data instead
+                        displaySampleData();
+                        return;
+                    }
+                    
+                    // Check other HTTP status errors
+                    if (this.status !== 200) {
+                        errorEl.innerHTML = `
+                            <h3>API Error: Received status code ${this.status}</h3>
+                            <p>The API request failed. This could be due to:</p>
+                            <ul>
+                                <li>Invalid API key</li>
+                                <li>Expired subscription</li>
+                                <li>Invalid match ID</li>
+                                <li>API endpoint has changed</li>
+                            </ul>
+                            <h4>Displaying sample data instead...</h4>
+                        `;
+                        errorEl.style.display = 'block';
+                        
+                        // Show sample data instead
+                        displaySampleData();
+                        return;
+                    }
+                    
+                    // Check if response exists
+                    if (!this.responseText) {
+                        errorEl.textContent = 'Error: Empty response from API';
+                        errorEl.style.display = 'block';
+                        return;
+                    }
+                    
+                    try {
+                        // Log raw response for debugging
+                        console.log("Raw API response:", this.responseText);
+                        
+                        // Display raw response (for debugging)
+                        matchInfoEl.innerHTML = `
+                            <h2>API Response (Debug)</h2>
+                            <pre style="white-space: pre-wrap; background: #f5f5f5; padding: 10px; overflow: auto; max-height: 300px;">${this.responseText}</pre>
+                        `;
+                        
+                        // Parse response
+                        const response = JSON.parse(this.responseText);
+                        console.log("Parsed response:", JSON.stringify(response));
+                        
+                        // Process the response and display data
+                        processResponse(response);
+                    } catch (error) {
+                        console.error('Error processing response:', error);
+                        errorEl.textContent = 'Failed to process the data: ' + error.message;
+                        errorEl.style.display = 'block';
+                    }
+                }
+            });
+
+            xhr.open('GET', 'https://footapi7.p.rapidapi.com/api/match/12117270/best-players/summary');
+            xhr.setRequestHeader('x-rapidapi-key', '8d1de582ecmsh5744dac8febbae0p1db195jsn56d76e59195d');
+            xhr.setRequestHeader('x-rapidapi-host', 'footapi7.p.rapidapi.com');
+
+            xhr.send(data);
+        }
+        
+        // Sample match data for when API call fails
+        function displaySampleData() {
+            // Display sample match info
+            matchInfoEl.innerHTML = `
+                <h2>Sample Match Information</h2>
+                <div class="player-card">
+                    <p><strong>Match:</strong> Manchester United vs Arsenal</p>
+                    <p><strong>Date:</strong> 2023-05-15</p>
+                    <p><strong>Venue:</strong> Old Trafford, Manchester</p>
+                    <p><strong>Competition:</strong> Premier League</p>
+                    <p><strong>Result:</strong> 3-1</p>
+                </div>
+                <p class="note" style="margin-top: 10px; font-style: italic;">Note: This is sample data shown because the API call failed.</p>
+            `;
+            
+            // Sample home team players
+            homeTeamPlayersEl.innerHTML = '<h3>Manchester United - Best Players</h3>';
+            
+            const homePlayers = [
+                {
+                    name: "Bruno Fernandes",
+                    position: "Midfielder",
+                    jersey: 8,
+                    stats: {
+                        rating: 8.7,
+                        goals: 1,
+                        assists: 2,
+                        passAccuracy: "92%",
+                        keyPasses: 5
+                    }
+                },
+                {
+                    name: "Marcus Rashford",
+                    position: "Forward",
+                    jersey: 10,
+                    stats: {
+                        rating: 8.5,
+                        goals: 2,
+                        assists: 0,
+                        shotsOnTarget: 3,
+                        dribbles: 7
+                    }
+                },
+                {
+                    name: "Casemiro",
+                    position: "Defensive Midfielder",
+                    jersey: 18,
+                    stats: {
+                        rating: 8.2,
+                        interceptions: 4,
+                        tackles: 6,
+                        passAccuracy: "89%",
+                        aerialDuelsWon: 5
+                    }
+                }
+            ];
+            
+            homePlayers.forEach(player => {
+                const playerCard = document.createElement('div');
+                playerCard.className = 'player-card';
+                playerCard.innerHTML = `
+                    <h4>${player.name} (${player.position}, #${player.jersey})</h4>
+                    <p><strong>Performance Rating:</strong> ${player.stats.rating}/10</p>
+                    <h5>Key Statistics:</h5>
+                    <ul>
+                        ${Object.entries(player.stats)
+                            .filter(([key]) => key !== 'rating')
+                            .map(([key, value]) => `<li><strong>${key}:</strong> ${value}</li>`)
+                            .join('')
+                        }
+                    </ul>
+                `;
+                homeTeamPlayersEl.appendChild(playerCard);
+            });
+            
+            // Sample away team players
+            awayTeamPlayersEl.innerHTML = '<h3>Arsenal - Best Players</h3>';
+            
+            const awayPlayers = [
+                {
+                    name: "Bukayo Saka",
+                    position: "Winger",
+                    jersey: 7,
+                    stats: {
+                        rating: 8.3,
+                        goals: 1,
+                        assists: 0,
+                        dribbles: 8,
+                        chancesCreated: 4
+                    }
+                },
+                {
+                    name: "Martin Ødegaard",
+                    position: "Attacking Midfielder",
+                    jersey: 8,
+                    stats: {
+                        rating: 7.9,
+                        goals: 0,
+                        assists: 1,
+                        passAccuracy: "94%",
+                        keyPasses: 6
+                    }
+                },
+                {
+                    name: "William Saliba",
+                    position: "Center Back",
+                    jersey: 12,
+                    stats: {
+                        rating: 7.8,
+                        clearances: 5,
+                        tackles: 3,
+                        interceptions: 4,
+                        passAccuracy: "91%"
+                    }
+                }
+            ];
+            
+            awayPlayers.forEach(player => {
+                const playerCard = document.createElement('div');
+                playerCard.className = 'player-card';
+                playerCard.innerHTML = `
+                    <h4>${player.name} (${player.position}, #${player.jersey})</h4>
+                    <p><strong>Performance Rating:</strong> ${player.stats.rating}/10</p>
+                    <h5>Key Statistics:</h5>
+                    <ul>
+                        ${Object.entries(player.stats)
+                            .filter(([key]) => key !== 'rating')
+                            .map(([key, value]) => `<li><strong>${key}:</strong> ${value}</li>`)
+                            .join('')
+                        }
+                    </ul>
+                `;
+                awayTeamPlayersEl.appendChild(playerCard);
+            });
+        }
+        
+        // Process and display the API response
+        function processResponse(response) {
+            // First, create a more descriptive view of the response structure
+            const responseStructure = document.createElement('div');
+            responseStructure.innerHTML = `
+                <h3>Response Structure</h3>
+                <p>The API returned the following data structure:</p>
+                <pre style="white-space: pre-wrap; background: #f0f0f0; padding: 10px; font-size: 12px;">
+${Object.keys(response).map(key => {
+    if (typeof response[key] === 'object' && response[key] !== null) {
+        return `${key}: ${typeof response[key]} with keys: [${Object.keys(response[key]).join(', ')}]`;
+    } else {
+        return `${key}: ${typeof response[key]}`;
+    }
+}).join('\n')}
+                </pre>
+            `;
+            matchInfoEl.appendChild(responseStructure);
+            
+            // Attempt to display any match data if available
+            if (response.match) {
+                displayMatchData(response.match);
+            } else if (response.data && response.data.match) {
+                displayMatchData(response.data.match);
+            }
+            
+            // Attempt to display best players data if available
+            if (response.bestPlayers) {
+                displayPlayersData(response.bestPlayers);
+            } else if (response.data && response.data.bestPlayers) {
+                displayPlayersData(response.data.bestPlayers);
+            } else {
+                // Try to find any player data in the response
+                findAndDisplayPlayers(response);
+            }
+        }
+        
+        // Display basic match information
+        function displayMatchData(match) {
+            const matchDiv = document.createElement('div');
+            matchDiv.innerHTML = `
+                <h2>Match Information</h2>
+                <ul>
+                    ${Object.keys(match).map(key => {
+                        if (typeof match[key] !== 'object') {
+                            return `<li><strong>${key}:</strong> ${match[key]}</li>`;
+                        }
+                        return '';
+                    }).join('')}
+                </ul>
+            `;
+            matchInfoEl.appendChild(matchDiv);
+        }
+        
+        // Display players data if it exists in the expected format
+        function displayPlayersData(bestPlayers) {
+            // Display home team players
+            if (bestPlayers.home && Array.isArray(bestPlayers.home)) {
+                homeTeamPlayersEl.innerHTML = `<h3>Home Team - ${bestPlayers.home.length} players</h3>`;
+                bestPlayers.home.forEach(player => {
+                    displayPlayerInfo(player, homeTeamPlayersEl);
+                });
+            }
+            
+            // Display away team players
+            if (bestPlayers.away && Array.isArray(bestPlayers.away)) {
+                awayTeamPlayersEl.innerHTML = `<h3>Away Team - ${bestPlayers.away.length} players</h3>`;
+                bestPlayers.away.forEach(player => {
+                    displayPlayerInfo(player, awayTeamPlayersEl);
+                });
+            }
+        }
+        
+        // Display individual player info
+        function displayPlayerInfo(player, containerEl) {
+            const playerDiv = document.createElement('div');
+            playerDiv.className = 'player-card';
+            
+            // Create HTML content based on player data structure
+            let playerHTML = '<ul>';
+            
+            for (const key in player) {
+                if (typeof player[key] !== 'object' || player[key] === null) {
+                    playerHTML += `<li><strong>${key}:</strong> ${player[key]}</li>`;
+                } else if (typeof player[key] === 'object') {
+                    // If it's an object, get the first level of properties
+                    playerHTML += `<li><strong>${key}:</strong> <ul>`;
+                    for (const subKey in player[key]) {
+                        if (typeof player[key][subKey] !== 'object' || player[key][subKey] === null) {
+                            playerHTML += `<li>${subKey}: ${player[key][subKey]}</li>`;
+                        }
+                    }
+                    playerHTML += `</ul></li>`;
+                }
+            }
+            
+            playerHTML += '</ul>';
+            playerDiv.innerHTML = playerHTML;
+            containerEl.appendChild(playerDiv);
+        }
+        
+        // Try to find player data in the response if it's not in the expected location
+        function findAndDisplayPlayers(response) {
+            const message = document.createElement('div');
+            message.innerHTML = `
+                <h3>Player Data</h3>
+                <p>Could not find player data in the expected format. Please check the raw response above.</p>
+            `;
+            homeTeamPlayersEl.appendChild(message);
+        }
+        
+        // Add event listeners to buttons
+        fetchBtn.addEventListener('click', fetchMatchPlayers);
+        document.getElementById('showSampleBtn').addEventListener('click', function() {
+            // Clear previous data and errors
+            matchInfoEl.innerHTML = '';
+            homeTeamPlayersEl.innerHTML = '';
+            awayTeamPlayersEl.innerHTML = '';
+            errorEl.style.display = 'none';
+            
+            // Show sample data
+            displaySampleData();
+        });
+    </script>
+</body>
+</html>
