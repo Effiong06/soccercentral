@@ -21,7 +21,7 @@ It is a basic website simply displaying information about the football, from lea
       -CSS: for styling
       -JavaScripts: for page interactivity
 - API Interactions :-
-     - API-Football (by API-Sports) from [https://dashboard.api-football.com/#](url)
+     - API-Football (by API-Sports) from [https://dashboard.api-football.com/](url)
 - Deployment :-
     Deployed on nginx and haproxy for load balancing
 
