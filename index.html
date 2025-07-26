@@ -3,492 +3,848 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soccer Central</title>
+    <title>Football Data Central</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            line-height: 1.6;
-        }
-        h1, h2, h3 {
-            color: #333;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .match-info {
-            margin-bottom: 20px;
-        }
-        .player-card {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-        }
-        .loading {
-            display: none;
-            margin: 20px 0;
-        }
-        .error {
-            color: #721c24;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            padding: 15px;
-            border-radius: 4px;
-            display: none;
-            margin: 20px 0;
-        }
-        .note {
-            background-color: #fff3cd;
-            border: 1px solid #ffeeba;
-            color: #856404;
-            padding: 15px;
-            border-radius: 4px;
-            margin: 20px 0;
-        }
-        button {
-            padding: 8px 16px;
-            background-color: #4285f4;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #3367d6;
-        }
-        .player-list {
-            margin-top: 20px;
-        }
-        .team-section {
-            margin-bottom: 20px;
-        }
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f7f6; color: #333; }
+        h1, h2, h3 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 5px; margin-bottom: 15px; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 25px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); background-color: #ffffff; }
+        button { padding: 10px 18px; background-color: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px; font-size: 1rem; transition: background-color 0.3s ease; }
+        button:hover { background-color: #2980b9; }
+        input[type="date"], input[type="number"], input[type="text"], select { padding: 9px; border: 1px solid #ccc; border-radius: 5px; margin-right: 10px; font-size: 1rem; width: auto; max-width: 250px; }
+        .section { margin-top: 35px; padding-top: 25px; border-top: 1px solid #eee; }
+        #leagues-list, #fixtures-list, #standings-table, #team-details, #countries-list,
+        #player-search-results, #team-stats-results, #player-stats-results, #events-results,
+        #lineups-results, #h2h-results { margin-top: 20px; border: 1px solid #eee; padding: 18px; border-radius: 6px; background-color: #fdfdfd; }
+        .league-item, .fixture-item, .country-item, .player-search-item, .h2h-match-item { margin-bottom: 8px; padding: 8px 0; border-bottom: 1px dotted #e0e0e0; display: flex; align-items: center; }
+        .league-item:last-child, .fixture-item:last-child, .country-item:last-child, .player-search-item:last-child { border-bottom: none; }
+        .league-item img, .fixture-item img, .team-logo-small { margin-right: 10px; vertical-align: middle; }
+        .fixture-item div, .h2h-match-item div { flex: 1; }
+        .fixture-item .teams, .h2h-match-item .teams { font-weight: bold; }
+        .fixture-item .score, .h2h-match-item .score { margin-left: 10px; font-weight: bold; color: #007bff; }
+        .fixture-item .status, .h2h-match-item .status { font-style: italic; color: #555; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.95rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #e9ecef; color: #333; }
+        tr:nth-child(even) { background-color: #f8f8f8; }
+        .error-message { color: #d9534f; background-color: #f2dede; border: 1px solid #ebccd1; padding: 12px; margin-top: 15px; border-radius: 5px; display: none; }
+        .loading-message { font-style: italic; color: #888; margin-top: 15px; padding: 12px; display: none; background-color: #e7f3ff; border-radius: 5px; border: 1px solid #cce5ff; }
+        .player-card, .event-card, .lineup-card { border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 6px; background-color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .player-card h4, .event-card h4, .lineup-card h4 { margin-top: 0; color: #34495e; }
+        .player-card ul, .event-card ul, .lineup-card ul { list-style: none; padding: 0; margin: 0; }
+        .player-card ul li, .event-card ul li, .lineup-card ul li { margin-bottom: 5px; }
+        .player-card strong, .event-card strong, .lineup-card strong { color: #555; }
+        .event-card.goal { background-color: #d4edda; border-color: #c3e6cb; }
+        .event-card.card { background-color: #fff3cd; border-color: #ffeeba; }
+        .event-card.sub { background-color: #d1ecf1; border-color: #bee5eb; }
+        .lineup-team { display: flex; align-items: center; margin-bottom: 15px; }
+        .lineup-team img { margin-right: 15px; }
+        .lineup-players { display: flex; flex-wrap: wrap; gap: 10px; }
+        .lineup-player { background-color: #f0f8ff; border: 1px solid #d0e7f7; padding: 8px 12px; border-radius: 4px; font-size: 0.9em; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>FootApi - Match Best Players</h1>
-        <p>View the best performing players from the selected match.</p>
-        
-        <div class="note">
-            <h3>API Rate Limit Information</h3>
-            <p>This demo app is using a RapidAPI key for the footapi7 API. This API has the following limitations:</p>
-            <ul>
-                <li>Free tier users have a limited number of requests per day</li>
-                <li>When you exceed this limit, you'll receive a 429 error</li>
-                <li>If you're consistently seeing rate limit errors, consider using your own API key</li>
-            </ul>
+        <h1>Football Data Central</h1>
+        <p>Explore football data using the API-Sports Football API.</p>
+
+        <div class="note" style="background-color: #e0f2f7; border: 1px solid #a7d9ed; color: #0f6674; padding: 15px; border-radius: 4px; margin-bottom: 30px;">
+            <h3>API Usage Information</h3>
+            <p>This application uses your API-Sports Football API key. Remember the free tier has a daily request limit (e.g., 100 requests/day). Excessive clicks will quickly exhaust your quota.</p>
+            <p>If you encounter "Rate Limit Exceeded" or other errors, check your API-Sports dashboard for your usage stats and ensure your API key is correct.</p>
         </div>
-        
-        <button id="fetchBtn">Load Match Players</button>
-        <button id="showSampleBtn" style="background-color: #28a745; margin-left: 10px;">Show Sample Data</button>
-        
-        <div id="loading" class="loading">Loading match data...</div>
-        <div id="error" class="error"></div>
-        
-        <div id="matchInfo" class="match-info"></div>
-        
-        <div id="playerData">
-            <div id="homeTeam" class="team-section">
-                <h2>Home Team Best Players</h2>
-                <div id="homeTeamPlayers" class="player-list"></div>
-            </div>
-            
-            <div id="awayTeam" class="team-section">
-                <h2>Away Team Best Players</h2>
-                <div id="awayTeamPlayers" class="player-list"></div>
-            </div>
+
+        <div class="section">
+            <h2>1. Browse Leagues</h2>
+            <p>Search for leagues by name or country, or leave blank to load all.</p>
+            <input type="text" id="league-search-input" placeholder="Enter league/country name">
+            <button onclick="fetchLeagues()">Search Leagues</button>
+            <div id="leagues-list">No leagues loaded yet.</div>
+            <div id="leagues-error" class="error-message"></div>
+            <div id="leagues-loading" class="loading-message"></div>
         </div>
+
+        ---
+
+        <div class="section">
+            <h2>2. Browse Countries</h2>
+            <button onclick="fetchCountries()">Load All Countries</button>
+            <div id="countries-list">No countries loaded yet.</div>
+            <div id="countries-error" class="error-message"></div>
+            <div id="countries-loading" class="loading-message"></div>
+        </div>
+
+        ---
+
+        <div class="section">
+            <h2>3. Find Matches (Fixtures)</h2>
+            <p>Select a league and a date to view matches.</p>
+            <select id="fixture-league-select">
+                <option value="">Select a League</option>
+            </select>
+            <input type="date" id="fixture-date-input" value="">
+            <button onclick="fetchFixtures()">Load Matches</button>
+            <div id="fixtures-list">No matches loaded yet.</div>
+            <div id="fixtures-error" class="error-message"></div>
+            <div id="fixtures-loading" class="loading-message"></div>
+        </div>
+
+        ---
+
+        <div class="section">
+            <h2>4. View League Standings</h2>
+            <p>Select a league and season to see current standings.</p>
+            <select id="standings-league-select">
+                <option value="">Select a League</option>
+            </select>
+            <input type="number" id="standings-season-input" placeholder="Season (e.g., 2024)">
+            <button onclick="fetchStandings()">Load Standings</button>
+            <div id="standings-table">No standings loaded yet.</div>
+            <div id="standings-error" class="error-message"></div>
+            <div id="standings-loading" class="loading-message"></div>
+        </div>
+
+        ---
+
+        <div class="section">
+            <h2>5. Search for a Team</h2>
+            <p>Enter a team name to find its details.</p>
+            <input type="text" id="team-search-input" placeholder="Enter team name">
+            <button onclick="searchTeam()">Search Team</button>
+            <div id="team-details">No team searched yet.</div>
+            <div id="team-error" class="error-message"></div>
+            <div id="team-loading" class="loading-message"></div>
+        </div>
+
+        ---
+
+        <div class="section">
+            <h2>6. Search for Players</h2>
+            <p>Enter a player name to find them. (Note: Player search can be broad, narrow down by team/league for better results if possible.)</p>
+            <input type="text" id="player-search-input" placeholder="Enter player name">
+            <button onclick="searchPlayers()">Search Players</button>
+            <div id="player-search-results">No player searched yet.</div>
+            <div id="player-search-error" class="error-message"></div>
+            <div id="player-search-loading" class="loading-message"></div>
+        </div>
+
+        ---
+
+        <div class="section">
+            <h2>7. Team Statistics</h2>
+            <p>Get statistics for a specific team in a league and season.</p>
+            <input type="number" id="team-stat-team-id" placeholder="Team ID (e.g., 85 for Arsenal)">
+            <select id="team-stat-league-select">
+                <option value="">Select a League</option>
+            </select>
+            <input type="number" id="team-stat-season-input" placeholder="Season (e.g., 2024)">
+            <button onclick="fetchTeamStatistics()">Load Team Statistics</button>
+            <div id="team-stats-results">No team statistics loaded.</div>
+            <div id="team-stats-error" class="error-message"></div>
+            <div id="team-stats-loading" class="loading-message"></div>
+        </div>
+
+        ---
+
+        <div class="section">
+            <h2>8. Player Statistics</h2>
+            <p>Get statistics for a specific player in a league and season.</p>
+            <input type="number" id="player-stat-player-id" placeholder="Player ID (e.g., 276 for Messi)">
+            <select id="player-stat-league-select">
+                <option value="">Select a League (Optional)</option>
+            </select>
+            <input type="number" id="player-stat-season-input" placeholder="Season (e.g., 2024)">
+            <button onclick="fetchPlayerStatistics()">Load Player Statistics</button>
+            <div id="player-stats-results">No player statistics loaded.</div>
+            <div id="player-stats-error" class="error-message"></div>
+            <div id="player-stats-loading" class="loading-message"></div>
+        </div>
+
+        ---
+
+        <div class="section">
+            <h2>9. Match Events</h2>
+            <p>View events (goals, cards, substitutions) for a specific match.</p>
+            <input type="number" id="events-fixture-id" placeholder="Fixture ID (e.g., 1035245)">
+            <button onclick="fetchEvents()">Load Events</button>
+            <div id="events-results">No events loaded.</div>
+            <div id="events-error" class="error-message"></div>
+            <div id="events-loading" class="loading-message"></div>
+        </div>
+
+        ---
+
+        <div class="section">
+            <h2>10. Match Lineups</h2>
+            <p>View team lineups for a specific match.</p>
+            <input type="number" id="lineups-fixture-id" placeholder="Fixture ID (e.g., 1035245)">
+            <button onclick="fetchLineups()">Load Lineups</button>
+            <div id="lineups-results">No lineups loaded.</div>
+            <div id="lineups-error" class="error-message"></div>
+            <div id="lineups-loading" class="loading-message"></div>
+        </div>
+
+        ---
+
+        <div class="section">
+            <h2>11. Head-to-Head (H2H) Matches</h2>
+            <p>Find past matches between two teams.</p>
+            <input type="number" id="h2h-team1-id" placeholder="Team 1 ID (e.g., 85 for Arsenal)">
+            <input type="number" id="h2h-team2-id" placeholder="Team 2 ID (e.g., 34 for Man Utd)">
+            <button onclick="fetchH2H()">Load H2H</button>
+            <div id="h2h-results">No H2H matches loaded.</div>
+            <div id="h2h-error" class="error-message"></div>
+            <div id="h2h-loading" class="loading-message"></div>
+        </div>
+
     </div>
 
     <script>
-        // Elements
-        const fetchBtn = document.getElementById('fetchBtn');
-        const loadingEl = document.getElementById('loading');
-        const errorEl = document.getElementById('error');
-        const matchInfoEl = document.getElementById('matchInfo');
-        const homeTeamPlayersEl = document.getElementById('homeTeamPlayers');
-        const awayTeamPlayersEl = document.getElementById('awayTeamPlayers');
-        
-        // Fetch match data
-        function fetchMatchPlayers() {
-            // Reset previous data
-            matchInfoEl.innerHTML = '';
-            homeTeamPlayersEl.innerHTML = '';
-            awayTeamPlayersEl.innerHTML = '';
-            
-            // Show loading, hide error
-            loadingEl.style.display = 'block';
-            errorEl.style.display = 'none';
-            
-            const data = null;
-            const xhr = new XMLHttpRequest();
-            xhr.withCredentials = true;
+        // Use the RapidAPI specific host and key
+        const RAPIDAPI_HOST = "v3.football.api-sports.io"; 
+        const RAPIDAPI_KEY = "faa0442322d27055122d65ab6d1744ac"; 
 
-            xhr.addEventListener('readystatechange', function () {
-                if (this.readyState === this.DONE) {
-                    console.log("API call completed with status:", this.status);
-                    
-                    // Hide loading
-                    loadingEl.style.display = 'none';
-                    
-                    // Check for network error (status 0)
-                    if (this.status === 0) {
-                        errorEl.innerHTML = `
-                            <h3>Network Error (Status 0)</h3>
-                            <p>Could not connect to the API server. This could be due to:</p>
-                            <ul>
-                                <li>CORS (Cross-Origin Resource Sharing) restrictions</li>
-                                <li>Network connectivity issues</li>
-                                <li>The API server is down or unreachable</li>
-                                <li>Browser security settings blocking the request</li>
-                            </ul>
-                            <h4>Displaying sample data instead...</h4>
-                        `;
-                        errorEl.style.display = 'block';
-                        
-                        // Show sample data instead
-                        displaySampleData();
-                        return;
-                    }
-                    
-                    // Check for rate limit error (429)
-                    if (this.status === 429) {
-                        errorEl.innerHTML = `
-                            <h3>API Rate Limit Exceeded (Status 429)</h3>
-                            <p>You've sent too many requests to the API in a short period of time.</p>
-                            <h4>Possible solutions:</h4>
-                            <ul>
-                                <li>Wait a few minutes before trying again</li>
-                                <li>Check your RapidAPI account dashboard for usage limits</li>
-                                <li>Upgrade your API subscription plan if you need more requests</li>
-                            </ul>
-                            <h4>Displaying sample data instead...</h4>
-                        `;
-                        errorEl.style.display = 'block';
-                        
-                        // Show sample data instead
-                        displaySampleData();
-                        return;
-                    }
-                    
-                    // Check other HTTP status errors
-                    if (this.status !== 200) {
-                        errorEl.innerHTML = `
-                            <h3>API Error: Received status code ${this.status}</h3>
-                            <p>The API request failed. This could be due to:</p>
-                            <ul>
-                                <li>Invalid API key</li>
-                                <li>Expired subscription</li>
-                                <li>Invalid match ID</li>
-                                <li>API endpoint has changed</li>
-                            </ul>
-                            <h4>Displaying sample data instead...</h4>
-                        `;
-                        errorEl.style.display = 'block';
-                        
-                        // Show sample data instead
-                        displaySampleData();
-                        return;
-                    }
-                    
-                    // Check if response exists
-                    if (!this.responseText) {
-                        errorEl.textContent = 'Error: Empty response from API';
-                        errorEl.style.display = 'block';
-                        return;
-                    }
-                    
-                    try {
-                        // Log raw response for debugging
-                        console.log("Raw API response:", this.responseText);
-                        
-                        // Display raw response (for debugging)
-                        matchInfoEl.innerHTML = `
-                            <h2>API Response (Debug)</h2>
-                            <pre style="white-space: pre-wrap; background: #f5f5f5; padding: 10px; overflow: auto; max-height: 300px;">${this.responseText}</pre>
-                        `;
-                        
-                        // Parse response
-                        const response = JSON.parse(this.responseText);
-                        console.log("Parsed response:", JSON.stringify(response));
-                        
-                        // Process the response and display data
-                        processResponse(response);
-                    } catch (error) {
-                        console.error('Error processing response:', error);
-                        errorEl.textContent = 'Failed to process the data: ' + error.message;
-                        errorEl.style.display = 'block';
-                    }
+        // Helper function to build API URL
+        function getApiUrl(endpoint, params = {}) {
+            const query = Object.keys(params)
+                .filter(key => params[key] !== null && params[key] !== undefined && params[key] !== '')
+                .map(key => `${key}=${params[key]}`)
+                .join('&');
+            return `https://${RAPIDAPI_HOST}/${endpoint}${query ? '?' + query : ''}`;
+        }
+
+        // Helper function for API requests
+        async function apiRequest(endpoint, params, loadingElId, errorElId, displayFunction, populateLeaguesDropdowns = false) {
+            hideMessage(errorElId);
+            showMessage(loadingElId, 'Loading...', false);
+
+            const url = getApiUrl(endpoint, params);
+            const headers = {
+                "x-rapidapi-host": RAPIDAPI_HOST,
+                "x-rapidapi-key": RAPIDAPI_KEY
+            };
+
+            try {
+                const response = await fetch(url, { headers: headers });
+                const data = await response.json();
+                hideMessage(loadingElId);
+
+                if (data.errors && Object.keys(data.errors).length > 0) {
+                     // Check for specific API-Sports error messages
+                    const errorMsg = Object.values(data.errors).join(', ') || 'An API error occurred.';
+                    showMessage(errorElId, `API Error: ${errorMsg}. Please check your inputs or API limits.`, true);
+                    return;
                 }
+
+                if (data.response && data.response.length > 0) {
+                    displayFunction(data.response);
+                    if (populateLeaguesDropdowns) {
+                        populateLeagueDropdowns(data.response);
+                    }
+                } else {
+                    displayFunction([]); // Pass empty array to clear or show "No results"
+                }
+            } catch (error) {
+                hideMessage(loadingElId);
+                showMessage(errorElId, `Network Error: ${error.message}. Check console for details (CORS, internet, etc.).`, true);
+                console.error(`Error fetching ${endpoint}:`, error);
+            }
+        }
+
+        // Helper function to display messages
+        function showMessage(elementId, message, isError = false) {
+            const el = document.getElementById(elementId);
+            if (el) { // Check if element exists
+                el.innerText = message;
+                el.style.display = 'block';
+                el.style.backgroundColor = isError ? '#f8d7da' : '#d4edda';
+                el.style.color = isError ? '#721c24' : '#155724';
+                el.style.borderColor = isError ? '#f5c6cb' : '#c3e6cb';
+            }
+        }
+
+        function hideMessage(elementId) {
+            const el = document.getElementById(elementId);
+            if (el) { el.style.display = 'none'; }
+        }
+
+        // Function to populate league dropdowns (extracted from fetchLeagues)
+        function populateLeagueDropdowns(leagues) {
+            const fixtureLeagueSelect = document.getElementById('fixture-league-select');
+            const standingsLeagueSelect = document.getElementById('standings-league-select');
+            const teamStatLeagueSelect = document.getElementById('team-stat-league-select');
+            const playerStatLeagueSelect = document.getElementById('player-stat-league-select');
+
+            // Store current selected values to re-select after repopulating
+            const currentFixtureLeague = fixtureLeagueSelect.value;
+            const currentStandingsLeague = standingsLeagueSelect.value;
+            const currentTeamStatLeague = teamStatLeagueSelect.value;
+            const currentPlayerStatLeague = playerStatLeagueSelect.value;
+
+            // Clear existing options, keep default "Select a League"
+            fixtureLeagueSelect.innerHTML = '<option value="">Select a League</option>';
+            standingsLeagueSelect.innerHTML = '<option value="">Select a League</option>';
+            teamStatLeagueSelect.innerHTML = '<option value="">Select a League</option>';
+            playerStatLeagueSelect.innerHTML = '<option value="">Select a League (Optional)</option>';
+
+            leagues.forEach(item => {
+                const leagueName = item.league.name;
+                const leagueId = item.league.id;
+                const option = document.createElement('option');
+                option.value = leagueId;
+                option.textContent = leagueName;
+                fixtureLeagueSelect.appendChild(option.cloneNode(true));
+                standingsLeagueSelect.appendChild(option.cloneNode(true));
+                teamStatLeagueSelect.appendChild(option.cloneNode(true));
+                playerStatLeagueSelect.appendChild(option.cloneNode(true));
             });
 
-            xhr.open('GET', 'https://footapi7.p.rapidapi.com/api/match/12117270/best-players/summary');
-            xhr.setRequestHeader('x-rapidapi-key', '8d1de582ecmsh5744dac8febbae0p1db195jsn56d76e59195d');
-            xhr.setRequestHeader('x-rapidapi-host', 'footapi7.p.rapidapi.com');
+            // Restore previously selected values if they still exist
+            if (currentFixtureLeague) fixtureLeagueSelect.value = currentFixtureLeague;
+            if (currentStandingsLeague) standingsLeagueSelect.value = currentStandingsLeague;
+            if (currentTeamStatLeague) teamStatLeagueSelect.value = currentTeamStatLeague;
+            if (currentPlayerStatLeague) playerStatLeagueSelect.value = currentPlayerStatLeague;
+        }
 
-            xhr.send(data);
+
+        // --- FETCH LEAGUES ---
+        async function fetchLeagues() {
+            const leaguesListDiv = document.getElementById('leagues-list');
+            leaguesListDiv.innerHTML = ''; // Clear previous content
+            const searchInput = document.getElementById('league-search-input').value.trim();
+
+            const params = {};
+            if (searchInput) {
+                params.search = searchInput;
+            }
+
+            await apiRequest(
+                'leagues',
+                params, // Pass search parameter if it exists
+                'leagues-loading',
+                'leagues-error',
+                (response) => {
+                    if (response && response.length > 0) {
+                        leaguesListDiv.innerHTML = `<h3>${searchInput ? 'Search Results' : 'All Leagues'}:</h3>`;
+                        response.forEach(item => {
+                            const leagueName = item.league.name;
+                            const leagueId = item.league.id;
+                            const countryName = item.country.name;
+                            const logo = item.league.logo;
+                            const type = item.league.type; // League type (e.g., League, Cup)
+                            const currentSeason = item.seasons.find(s => s.current);
+
+                            const p = document.createElement('p');
+                            p.className = 'league-item';
+                            p.innerHTML = `<img src="${logo}" alt="${leagueName} logo" width="20" height="20"> <strong>${leagueName}</strong> (${countryName}) - ID: ${leagueId} (Type: ${type})`;
+                            if (currentSeason) {
+                                p.innerHTML += ` - Current Season: ${currentSeason.year}`;
+                            }
+                            leaguesListDiv.appendChild(p);
+                        });
+                    } else {
+                        leaguesListDiv.innerText = `No leagues found ${searchInput ? `matching "${searchInput}"` : ''}.`;
+                    }
+                },
+                true // Indicate that league dropdowns should be populated
+            );
         }
-        
-        // Sample match data for when API call fails
-        function displaySampleData() {
-            // Display sample match info
-            matchInfoEl.innerHTML = `
-                <h2>Sample Match Information</h2>
-                <div class="player-card">
-                    <p><strong>Match:</strong> Manchester United vs Arsenal</p>
-                    <p><strong>Date:</strong> 2023-05-15</p>
-                    <p><strong>Venue:</strong> Old Trafford, Manchester</p>
-                    <p><strong>Competition:</strong> Premier League</p>
-                    <p><strong>Result:</strong> 3-1</p>
-                </div>
-                <p class="note" style="margin-top: 10px; font-style: italic;">Note: This is sample data shown because the API call failed.</p>
-            `;
-            
-            // Sample home team players
-            homeTeamPlayersEl.innerHTML = '<h3>Manchester United - Best Players</h3>';
-            
-            const homePlayers = [
-                {
-                    name: "Bruno Fernandes",
-                    position: "Midfielder",
-                    jersey: 8,
-                    stats: {
-                        rating: 8.7,
-                        goals: 1,
-                        assists: 2,
-                        passAccuracy: "92%",
-                        keyPasses: 5
-                    }
-                },
-                {
-                    name: "Marcus Rashford",
-                    position: "Forward",
-                    jersey: 10,
-                    stats: {
-                        rating: 8.5,
-                        goals: 2,
-                        assists: 0,
-                        shotsOnTarget: 3,
-                        dribbles: 7
-                    }
-                },
-                {
-                    name: "Casemiro",
-                    position: "Defensive Midfielder",
-                    jersey: 18,
-                    stats: {
-                        rating: 8.2,
-                        interceptions: 4,
-                        tackles: 6,
-                        passAccuracy: "89%",
-                        aerialDuelsWon: 5
+
+        // --- FETCH COUNTRIES ---
+        async function fetchCountries() {
+            const countriesListDiv = document.getElementById('countries-list');
+            countriesListDiv.innerHTML = '';
+
+            await apiRequest(
+                'countries',
+                {},
+                'countries-loading',
+                'countries-error',
+                (response) => {
+                    if (response && response.length > 0) {
+                        countriesListDiv.innerHTML = `<h3>Available Countries:</h3>`;
+                        response.forEach(country => {
+                            const p = document.createElement('p');
+                            p.className = 'country-item';
+                            p.innerHTML = `<img src="${country.flag}" alt="${country.name} flag" width="20" height="15"> <strong>${country.name}</strong> (Code: ${country.code})`;
+                            countriesListDiv.appendChild(p);
+                        });
+                    } else {
+                        countriesListDiv.innerText = "No countries found.";
                     }
                 }
-            ];
-            
-            homePlayers.forEach(player => {
-                const playerCard = document.createElement('div');
-                playerCard.className = 'player-card';
-                playerCard.innerHTML = `
-                    <h4>${player.name} (${player.position}, #${player.jersey})</h4>
-                    <p><strong>Performance Rating:</strong> ${player.stats.rating}/10</p>
-                    <h5>Key Statistics:</h5>
-                    <ul>
-                        ${Object.entries(player.stats)
-                            .filter(([key]) => key !== 'rating')
-                            .map(([key, value]) => `<li><strong>${key}:</strong> ${value}</li>`)
-                            .join('')
-                        }
-                    </ul>
-                `;
-                homeTeamPlayersEl.appendChild(playerCard);
-            });
-            
-            // Sample away team players
-            awayTeamPlayersEl.innerHTML = '<h3>Arsenal - Best Players</h3>';
-            
-            const awayPlayers = [
-                {
-                    name: "Bukayo Saka",
-                    position: "Winger",
-                    jersey: 7,
-                    stats: {
-                        rating: 8.3,
-                        goals: 1,
-                        assists: 0,
-                        dribbles: 8,
-                        chancesCreated: 4
-                    }
-                },
-                {
-                    name: "Martin Ødegaard",
-                    position: "Attacking Midfielder",
-                    jersey: 8,
-                    stats: {
-                        rating: 7.9,
-                        goals: 0,
-                        assists: 1,
-                        passAccuracy: "94%",
-                        keyPasses: 6
-                    }
-                },
-                {
-                    name: "William Saliba",
-                    position: "Center Back",
-                    jersey: 12,
-                    stats: {
-                        rating: 7.8,
-                        clearances: 5,
-                        tackles: 3,
-                        interceptions: 4,
-                        passAccuracy: "91%"
+            );
+        }
+
+        // --- FETCH FIXTURES (GAMES) ---
+        async function fetchFixtures() {
+            const fixturesListDiv = document.getElementById('fixtures-list');
+            fixturesListDiv.innerHTML = '';
+            const leagueId = document.getElementById('fixture-league-select').value;
+            const dateInput = document.getElementById('fixture-date-input').value;
+            const currentYear = new Date().getFullYear();
+
+            if (!leagueId || !dateInput) {
+                showMessage('fixtures-error', 'Please select both a league and a date.', true);
+                return;
+            }
+
+            await apiRequest(
+                'fixtures',
+                { league: leagueId, season: currentYear, date: dateInput },
+                'fixtures-loading',
+                'fixtures-error',
+                (response) => {
+                    if (response && response.length > 0) {
+                        fixturesListDiv.innerHTML = `<h3>Matches on ${dateInput} for selected League:</h3>`;
+                        response.forEach(fixture => {
+                            const homeTeam = fixture.teams.home.name;
+                            const awayTeam = fixture.teams.away.name;
+                            const homeLogo = fixture.teams.home.logo;
+                            const awayLogo = fixture.teams.away.logo;
+                            const scoreHome = fixture.goals.home !== null ? fixture.goals.home : '?';
+                            const scoreAway = fixture.goals.away !== null ? fixture.goals.away : '?';
+                            const status = fixture.fixture.status.long;
+                            const venue = fixture.fixture.venue.name;
+                            const time = new Date(fixture.fixture.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            const fixtureId = fixture.fixture.id; // Get fixture ID
+
+                            const fixtureDiv = document.createElement('div');
+                            fixtureDiv.className = 'fixture-item';
+                            fixtureDiv.innerHTML = `
+                                <div>
+                                    <img src="${homeLogo}" alt="${homeTeam} logo" width="20" height="20">
+                                    <span class="teams">${homeTeam}</span>
+                                    <span class="score">${scoreHome} - ${scoreAway}</span>
+                                    <span class="teams">${awayTeam}</span>
+                                    <img src="${awayLogo}" alt="${awayTeam} logo" width="20" height="20">
+                                </div>
+                                <div>
+                                    <span>${time}</span> | <span>${venue}</span> | <span class="status">${status}</span>
+                                    <p style="font-size:0.8em; margin:0; padding-top:5px;">Fixture ID: ${fixtureId}</p>
+                                </div>
+                            `;
+                            fixturesListDiv.appendChild(fixtureDiv);
+                        });
+                    } else {
+                        fixturesListDiv.innerText = `No matches found for the selected league and date (${dateInput}).`;
                     }
                 }
-            ];
-            
-            awayPlayers.forEach(player => {
-                const playerCard = document.createElement('div');
-                playerCard.className = 'player-card';
-                playerCard.innerHTML = `
-                    <h4>${player.name} (${player.position}, #${player.jersey})</h4>
-                    <p><strong>Performance Rating:</strong> ${player.stats.rating}/10</p>
-                    <h5>Key Statistics:</h5>
-                    <ul>
-                        ${Object.entries(player.stats)
-                            .filter(([key]) => key !== 'rating')
-                            .map(([key, value]) => `<li><strong>${key}:</strong> ${value}</li>`)
-                            .join('')
-                        }
-                    </ul>
-                `;
-                awayTeamPlayersEl.appendChild(playerCard);
-            });
+            );
         }
-        
-        // Process and display the API response
-        function processResponse(response) {
-            // First, create a more descriptive view of the response structure
-            const responseStructure = document.createElement('div');
-            responseStructure.innerHTML = `
-                <h3>Response Structure</h3>
-                <p>The API returned the following data structure:</p>
-                <pre style="white-space: pre-wrap; background: #f0f0f0; padding: 10px; font-size: 12px;">
-${Object.keys(response).map(key => {
-    if (typeof response[key] === 'object' && response[key] !== null) {
-        return `${key}: ${typeof response[key]} with keys: [${Object.keys(response[key]).join(', ')}]`;
-    } else {
-        return `${key}: ${typeof response[key]}`;
-    }
-}).join('\n')}
-                </pre>
-            `;
-            matchInfoEl.appendChild(responseStructure);
-            
-            // Attempt to display any match data if available
-            if (response.match) {
-                displayMatchData(response.match);
-            } else if (response.data && response.data.match) {
-                displayMatchData(response.data.match);
+
+        // --- FETCH STANDINGS ---
+        async function fetchStandings() {
+            const standingsTableDiv = document.getElementById('standings-table');
+            standingsTableDiv.innerHTML = '';
+            const leagueId = document.getElementById('standings-league-select').value;
+            const season = document.getElementById('standings-season-input').value;
+
+            if (!leagueId || !season) {
+                showMessage('standings-error', 'Please select a league and enter a season year.', true);
+                return;
             }
-            
-            // Attempt to display best players data if available
-            if (response.bestPlayers) {
-                displayPlayersData(response.bestPlayers);
-            } else if (response.data && response.data.bestPlayers) {
-                displayPlayersData(response.data.bestPlayers);
-            } else {
-                // Try to find any player data in the response
-                findAndDisplayPlayers(response);
-            }
-        }
-        
-        // Display basic match information
-        function displayMatchData(match) {
-            const matchDiv = document.createElement('div');
-            matchDiv.innerHTML = `
-                <h2>Match Information</h2>
-                <ul>
-                    ${Object.keys(match).map(key => {
-                        if (typeof match[key] !== 'object') {
-                            return `<li><strong>${key}:</strong> ${match[key]}</li>`;
-                        }
-                        return '';
-                    }).join('')}
-                </ul>
-            `;
-            matchInfoEl.appendChild(matchDiv);
-        }
-        
-        // Display players data if it exists in the expected format
-        function displayPlayersData(bestPlayers) {
-            // Display home team players
-            if (bestPlayers.home && Array.isArray(bestPlayers.home)) {
-                homeTeamPlayersEl.innerHTML = `<h3>Home Team - ${bestPlayers.home.length} players</h3>`;
-                bestPlayers.home.forEach(player => {
-                    displayPlayerInfo(player, homeTeamPlayersEl);
-                });
-            }
-            
-            // Display away team players
-            if (bestPlayers.away && Array.isArray(bestPlayers.away)) {
-                awayTeamPlayersEl.innerHTML = `<h3>Away Team - ${bestPlayers.away.length} players</h3>`;
-                bestPlayers.away.forEach(player => {
-                    displayPlayerInfo(player, awayTeamPlayersEl);
-                });
-            }
-        }
-        
-        // Display individual player info
-        function displayPlayerInfo(player, containerEl) {
-            const playerDiv = document.createElement('div');
-            playerDiv.className = 'player-card';
-            
-            // Create HTML content based on player data structure
-            let playerHTML = '<ul>';
-            
-            for (const key in player) {
-                if (typeof player[key] !== 'object' || player[key] === null) {
-                    playerHTML += `<li><strong>${key}:</strong> ${player[key]}</li>`;
-                } else if (typeof player[key] === 'object') {
-                    // If it's an object, get the first level of properties
-                    playerHTML += `<li><strong>${key}:</strong> <ul>`;
-                    for (const subKey in player[key]) {
-                        if (typeof player[key][subKey] !== 'object' || player[key][subKey] === null) {
-                            playerHTML += `<li>${subKey}: ${player[key][subKey]}</li>`;
-                        }
+
+            await apiRequest(
+                'standings',
+                { league: leagueId, season: season },
+                'standings-loading',
+                'standings-error',
+                (response) => {
+                    if (response && response.length > 0 && response[0].league && response[0].league.standings && response[0].league.standings.length > 0) {
+                        const standings = response[0].league.standings[0];
+
+                        let tableHTML = `
+                            <h3>${response[0].league.name} Standings - ${season}</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Team</th>
+                                        <th>Played</th>
+                                        <th>Won</th>
+                                        <th>Drawn</th>
+                                        <th>Lost</th>
+                                        <th>GF</th>
+                                        <th>GA</th>
+                                        <th>GD</th>
+                                        <th>Points</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+
+                        standings.sort((a, b) => a.rank - b.rank);
+                        standings.forEach(team => {
+                            tableHTML += `
+                                <tr>
+                                    <td>${team.rank}</td>
+                                    <td><img src="${team.team.logo}" alt="${team.team.name} logo" class="team-logo-small" width="20" height="20">${team.team.name}</td>
+                                    <td>${team.all.played}</td>
+                                    <td>${team.all.win}</td>
+                                    <td>${team.all.draw}</td>
+                                    <td>${team.all.lose}</td>
+                                    <td>${team.all.goals.for}</td>
+                                    <td>${team.all.goals.against}</td>
+                                    <td>${team.goalsDiff}</td>
+                                    <td>${team.points}</td>
+                                </tr>
+                            `;
+                        });
+
+                        tableHTML += `
+                                </tbody>
+                            </table>
+                        `;
+                        standingsTableDiv.innerHTML = tableHTML;
+                    } else {
+                        standingsTableDiv.innerText = `No standings found for the selected league and season (${season}).`;
                     }
-                    playerHTML += `</ul></li>`;
                 }
+            );
+        }
+
+        // --- SEARCH TEAM ---
+        async function searchTeam() {
+            const teamDetailsDiv = document.getElementById('team-details');
+            teamDetailsDiv.innerHTML = '';
+            const teamName = document.getElementById('team-search-input').value.trim();
+
+            if (!teamName) {
+                showMessage('team-error', 'Please enter a team name.', true);
+                return;
             }
-            
-            playerHTML += '</ul>';
-            playerDiv.innerHTML = playerHTML;
-            containerEl.appendChild(playerDiv);
+
+            await apiRequest(
+                'teams',
+                { search: teamName },
+                'team-loading',
+                'team-error',
+                (response) => {
+                    if (response && response.length > 0) {
+                        const team = response[0].team;
+                        const venue = response[0].venue;
+
+                        teamDetailsDiv.innerHTML = `
+                            <h3><img src="${team.logo}" alt="${team.name} logo" width="40" height="40" style="vertical-align: middle; margin-right: 10px;">${team.name}</h3>
+                            <p><strong>Team ID:</strong> ${team.id}</p>
+                            <p><strong>Country:</strong> ${team.country}</p>
+                            <p><strong>Founded:</strong> ${team.founded}</p>
+                            ${venue ? `
+                                <h4>Venue Details:</h4>
+                                <p><strong>Name:</strong> ${venue.name}</p>
+                                <p><strong>City:</strong> ${venue.city}</p>
+                                <p><strong>Capacity:</strong> ${venue.capacity}</p>
+                                <p><strong>Address:</strong> ${venue.address}</p>
+                                <img src="${venue.image}" alt="${venue.name} stadium" width="200" style="margin-top: 10px; border-radius: 5px;">
+                            ` : '<p>No venue details available.</p>'}
+                        `;
+                    } else {
+                        teamDetailsDiv.innerText = `No team found matching "${teamName}".`;
+                    }
+                }
+            );
         }
-        
-        // Try to find player data in the response if it's not in the expected location
-        function findAndDisplayPlayers(response) {
-            const message = document.createElement('div');
-            message.innerHTML = `
-                <h3>Player Data</h3>
-                <p>Could not find player data in the expected format. Please check the raw response above.</p>
-            `;
-            homeTeamPlayersEl.appendChild(message);
+
+        // --- SEARCH PLAYERS ---
+        async function searchPlayers() {
+            const playerSearchResultsDiv = document.getElementById('player-search-results');
+            playerSearchResultsDiv.innerHTML = '';
+            const playerName = document.getElementById('player-search-input').value.trim();
+
+            if (!playerName) {
+                showMessage('player-search-error', 'Please enter a player name.', true);
+                return;
+            }
+
+            await apiRequest(
+                'players',
+                { search: playerName },
+                'player-search-loading',
+                'player-search-error',
+                (response) => {
+                    if (response && response.length > 0) {
+                        playerSearchResultsDiv.innerHTML = `<h3>Players matching "${playerName}":</h3>`;
+                        response.forEach(playerData => {
+                            const player = playerData.player;
+                            const statistics = playerData.statistics[0]; // Get first set of stats (e.g., current season)
+
+                            let playerHtml = `
+                                <div class="player-search-item">
+                                    <img src="${player.photo}" alt="${player.name} photo" width="50" height="50" style="border-radius: 50%; object-fit: cover; margin-right: 15px;">
+                                    <div>
+                                        <strong>${player.name}</strong> (ID: ${player.id})<br>
+                                        Nationality: ${player.nationality || 'N/A'}<br>
+                                        Birth: ${player.birth.date || 'N/A'} in ${player.birth.place || 'N/A'}, ${player.birth.country || 'N/A'}<br>
+                                        ${statistics ? `Team: <img src="${statistics.team.logo}" alt="${statistics.team.name} logo" width="15" height="15" class="team-logo-small"> ${statistics.team.name} | League: ${statistics.league.name}` : ''}
+                                    </div>
+                                </div>
+                            `;
+                            playerSearchResultsDiv.innerHTML += playerHtml;
+                        });
+                    } else {
+                        playerSearchResultsDiv.innerText = `No players found matching "${playerName}".`;
+                    }
+                }
+            );
         }
-        
-        // Add event listeners to buttons
-        fetchBtn.addEventListener('click', fetchMatchPlayers);
-        document.getElementById('showSampleBtn').addEventListener('click', function() {
-            // Clear previous data and errors
-            matchInfoEl.innerHTML = '';
-            homeTeamPlayersEl.innerHTML = '';
-            awayTeamPlayersEl.innerHTML = '';
-            errorEl.style.display = 'none';
-            
-            // Show sample data
-            displaySampleData();
+
+        // --- FETCH TEAM STATISTICS ---
+        async function fetchTeamStatistics() {
+            const teamStatsResultsDiv = document.getElementById('team-stats-results');
+            teamStatsResultsDiv.innerHTML = '';
+            const teamId = document.getElementById('team-stat-team-id').value;
+            const leagueId = document.getElementById('team-stat-league-select').value;
+            const season = document.getElementById('team-stat-season-input').value;
+
+            if (!teamId || !leagueId || !season) {
+                showMessage('team-stats-error', 'Please enter Team ID, select a League, and enter a Season.', true);
+                return;
+            }
+
+            await apiRequest(
+                'teams/statistics',
+                { team: teamId, league: leagueId, season: season },
+                'team-stats-loading',
+                'team-stats-error',
+                (response) => {
+                    if (response && response.length > 0) {
+                        const stats = response[0];
+                        teamStatsResultsDiv.innerHTML = `
+                            <h3><img src="${stats.team.logo}" alt="${stats.team.name} logo" width="30" height="30" class="team-logo-small"> ${stats.team.name} Statistics (${stats.league.name} ${stats.season} Season)</h3>
+                            <p><strong>Games Played:</strong> ${stats.fixtures.played.total}</p>
+                            <p><strong>Wins:</strong> ${stats.fixtures.wins.total} | <strong>Draws:</strong> ${stats.fixtures.draws.total} | <strong>Losses:</strong> ${stats.fixtures.loses.total}</p>
+                            <p><strong>Goals For:</strong> ${stats.goals.for.total.total} | <strong>Goals Against:</strong> ${stats.goals.against.total.total}</p>
+                            <p><strong>Clean Sheets:</strong> ${stats.clean_sheet.total}</p>
+                            <h4>Form:</h4>
+                            <p>${stats.form}</p>
+                            <h4>Cards:</h4>
+                            <ul>
+                                <li>Yellow: ${stats.cards.yellow.total || 0}</li>
+                                <li>Red: ${stats.cards.red.total || 0}</li>
+                            </ul>
+                            <h4>Lineups (Most Used Formation):</h4>
+                            ${stats.lineups && stats.lineups.length > 0 ? `
+                                <p>Formation: ${stats.lineups[0].formation} (${stats.lineups[0].played} times)</p>
+                            ` : '<p>No lineup data available.</p>'}
+                        `;
+                    } else {
+                        teamStatsResultsDiv.innerText = `No statistics found for Team ID ${teamId} in selected league/season.`;
+                    }
+                }
+            );
+        }
+
+        // --- FETCH PLAYER STATISTICS ---
+        async function fetchPlayerStatistics() {
+            const playerStatsResultsDiv = document.getElementById('player-stats-results');
+            playerStatsResultsDiv.innerHTML = '';
+            const playerId = document.getElementById('player-stat-player-id').value;
+            const leagueId = document.getElementById('player-stat-league-select').value; // Optional
+            const season = document.getElementById('player-stat-season-input').value;
+
+            if (!playerId || !season) {
+                showMessage('player-stats-error', 'Please enter Player ID and Season. League is optional.', true);
+                return;
+            }
+
+            const params = { player: playerId, season: season };
+            if (leagueId) {
+                params.league = leagueId;
+            }
+
+            await apiRequest(
+                'players', // The 'players' endpoint can also return stats if 'season' is given
+                params,
+                'player-stats-loading',
+                'player-stats-error',
+                (response) => {
+                    if (response && response.length > 0 && response[0].statistics && response[0].statistics.length > 0) {
+                        const player = response[0].player;
+                        const stats = response[0].statistics[0]; // Assuming current team/league stats
+
+                        playerStatsResultsDiv.innerHTML = `
+                            <h3><img src="${player.photo}" alt="${player.name} photo" width="50" height="50" style="border-radius: 50%; object-fit: cover; margin-right: 15px;"> ${player.name} (${player.nationality})</h3>
+                            <p><strong>Player ID:</strong> ${player.id}</p>
+                            <p><strong>Age:</strong> ${player.age || 'N/A'} | <strong>Height:</strong> ${player.height || 'N/A'} | <strong>Weight:</strong> ${player.weight || 'N/A'}</p>
+                            <h4>Statistics for ${stats.league.name} (${stats.season} Season) - <img src="${stats.team.logo}" alt="${stats.team.name} logo" width="20" height="20" class="team-logo-small"> ${stats.team.name}</h4>
+                            <ul>
+                                <li><strong>Position:</strong> ${stats.games.position}</li>
+                                <li><strong>Appearances:</strong> ${stats.games.appearances || 0}</li>
+                                <li><strong>Minutes Played:</strong> ${stats.games.minutes || 0}</li>
+                                <li><strong>Rating:</strong> ${stats.games.rating || 'N/A'}</li>
+                                <li><strong>Goals:</strong> ${stats.goals.total || 0}</li>
+                                <li><strong>Assists:</strong> ${stats.goals.assists || 0}</li>
+                                <li><strong>Pass Accuracy:</strong> ${stats.passes.accuracy || 0}%</li>
+                                <li><strong>Tackles:</strong> ${stats.tackles.total || 0}</li>
+                                <li><strong>Cards:</strong> Yellow ${stats.cards.yellow || 0}, Red ${stats.cards.red || 0}</li>
+                            </ul>
+                        `;
+                    } else {
+                        playerStatsResultsDiv.innerText = `No statistics found for Player ID ${playerId} in selected season/league.`;
+                    }
+                }
+            );
+        }
+
+        // --- FETCH EVENTS ---
+        async function fetchEvents() {
+            const eventsResultsDiv = document.getElementById('events-results');
+            eventsResultsDiv.innerHTML = '';
+            const fixtureId = document.getElementById('events-fixture-id').value;
+
+            if (!fixtureId) {
+                showMessage('events-error', 'Please enter a Fixture ID.', true);
+                return;
+            }
+
+            await apiRequest(
+                'fixtures/events',
+                { fixture: fixtureId },
+                'events-loading',
+                'events-error',
+                (response) => {
+                    if (response && response.length > 0) {
+                        eventsResultsDiv.innerHTML = `<h3>Events for Fixture ID: ${fixtureId}</h3>`;
+                        response.forEach(event => {
+                            let eventClass = '';
+                            if (event.type === 'Goal') eventClass = 'goal';
+                            else if (event.type === 'Card') eventClass = 'card';
+                            else if (event.type === 'subst') eventClass = 'sub';
+
+                            eventsResultsDiv.innerHTML += `
+                                <div class="event-card ${eventClass}">
+                                    <h4>${event.time.elapsed}' ${event.type} by ${event.player.name} (${event.team.name})</h4>
+                                    <ul>
+                                        <li><strong>Detail:</strong> ${event.detail || 'N/A'}</li>
+                                        <li><strong>Comments:</strong> ${event.comments || 'N/A'}</li>
+                                        ${event.assist ? `<li><strong>Assist:</strong> ${event.assist.name}</li>` : ''}
+                                    </ul>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        eventsResultsDiv.innerText = `No events found for Fixture ID ${fixtureId}.`;
+                    }
+                }
+            );
+        }
+
+        // --- FETCH LINEUPS ---
+        async function fetchLineups() {
+            const lineupsResultsDiv = document.getElementById('lineups-results');
+            lineupsResultsDiv.innerHTML = '';
+            const fixtureId = document.getElementById('lineups-fixture-id').value;
+
+            if (!fixtureId) {
+                showMessage('lineups-error', 'Please enter a Fixture ID.', true);
+                return;
+            }
+
+            await apiRequest(
+                'fixtures/lineups',
+                { fixture: fixtureId },
+                'lineups-loading',
+                'lineups-error',
+                (response) => {
+                    if (response && response.length > 0) {
+                        lineupsResultsDiv.innerHTML = `<h3>Lineups for Fixture ID: ${fixtureId}</h3>`;
+                        response.forEach(teamLineup => {
+                            lineupsResultsDiv.innerHTML += `
+                                <div class="lineup-team">
+                                    <img src="${teamLineup.team.logo}" alt="${teamLineup.team.name} logo" width="40" height="40">
+                                    <h4>${teamLineup.team.name} (${teamLineup.formation || 'Formation N/A'})</h4>
+                                </div>
+                                <h5>Start XI:</h5>
+                                <div class="lineup-players">
+                                    ${teamLineup.startXI.map(p => `<span class="lineup-player">${p.player.name} (#${p.player.number}, ${p.player.pos})</span>`).join('')}
+                                </div>
+                                <h5>Substitutes:</h5>
+                                <div class="lineup-players">
+                                    ${teamLineup.substitutes.map(p => `<span class="lineup-player">${p.player.name} (#${p.player.number}, ${p.player.pos})</span>`).join('')}
+                                </div>
+                                <hr style="margin: 20px 0;">
+                            `;
+                        });
+                    } else {
+                        lineupsResultsDiv.innerText = `No lineups found for Fixture ID ${fixtureId}.`;
+                    }
+                }
+            );
+        }
+
+        // --- FETCH HEAD-TO-HEAD ---
+        async function fetchH2H() {
+            const h2hResultsDiv = document.getElementById('h2h-results');
+            h2hResultsDiv.innerHTML = '';
+            const team1Id = document.getElementById('h2h-team1-id').value;
+            const team2Id = document.getElementById('h2h-team2-id').value;
+
+            if (!team1Id || !team2Id) {
+                showMessage('h2h-error', 'Please enter IDs for both Team 1 and Team 2.', true);
+                return;
+            }
+            if (team1Id === team2Id) {
+                showMessage('h2h-error', 'Team IDs must be different for Head-to-Head.', true);
+                return;
+            }
+
+            // The H2H endpoint takes team IDs in the format 'teamId1-teamId2'
+            const h2hParam = `${team1Id}-${team2Id}`;
+
+            await apiRequest(
+                'fixtures/headtohead',
+                { h2h: h2hParam },
+                'h2h-loading',
+                'h2h-error',
+                (response) => {
+                    if (response && response.length > 0) {
+                        h2hResultsDiv.innerHTML = `<h3>Head-to-Head Matches:</h3>`;
+                        response.forEach(fixture => {
+                            const homeTeam = fixture.teams.home.name;
+                            const awayTeam = fixture.teams.away.name;
+                            const homeLogo = fixture.teams.home.logo;
+                            const awayLogo = fixture.teams.away.logo;
+                            const scoreHome = fixture.goals.home !== null ? fixture.goals.home : '?';
+                            const scoreAway = fixture.goals.away !== null ? fixture.goals.away : '?';
+                            const status = fixture.fixture.status.long;
+                            const date = new Date(fixture.fixture.date).toLocaleDateString();
+                            const leagueName = fixture.league.name;
+
+                            h2hResultsDiv.innerHTML += `
+                                <div class="h2h-match-item">
+                                    <div>
+                                        <img src="${homeLogo}" alt="${homeTeam} logo" width="20" height="20">
+                                        <span class="teams">${homeTeam}</span>
+                                        <span class="score">${scoreHome} - ${scoreAway}</span>
+                                        <span class="teams">${awayTeam}</span>
+                                        <img src="${awayLogo}" alt="${awayTeam} logo" width="20" height="20">
+                                    </div>
+                                    <div>
+                                        <span>${date}</span> | <span>${leagueName}</span> | <span class="status">${status}</span>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        h2hResultsDiv.innerText = `No Head-to-Head matches found for Team IDs ${team1Id} and ${team2Id}.`;
+                    }
+                }
+            );
+        }
+
+        // Set default date for fixtures to today and season to current year on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            document.getElementById('fixture-date-input').value = `${year}-${month}-${day}`;
+            document.getElementById('standings-season-input').value = year;
+            document.getElementById('team-stat-season-input').value = year;
+            document.getElementById('player-stat-season-input').value = year;
+
+            // Only initialize the league dropdowns when the user searches for leagues
+            // fetchLeagues(); // This line is REMOVED
         });
     </script>
 </body>

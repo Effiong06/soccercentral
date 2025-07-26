@@ -6,13 +6,13 @@ _______________________________________________
 
 Soccer Central is simply a site designed to provide users with imformation and stats regarding professional association football games. The user would input the match the want to learn about and they would be shown the stats regarding the teams and players involved
 
-It is a basic website simply displaying information about the user's desired match and additional details. Unfortunately, as shown in the demo, issues with the API did not allow for the proper development of the website
+It is a basic website simply displaying information about the football, from leagues and fixtures, to players' statistics. 
   
  ***DEMO***
  ______________________________________________
- {A link to a demo video (explaining and displaying the contents of the website)} :- [https://drive.google.com/file/d/1Cw2H1KV_yT3OaqwVAqRbwfu8lV1cIBrA/view?usp=sharing](url)
+ {A link to a demo video (explaining and displaying the contents of the website)} :- [fill this in](url)
  
- Open this link to access Soccer Central :- [https://www.ueff.tech/](url)
+ Open this link to access Soccer Central :- [fill this in](url)
  
  ***TECHNOLOGY USED***
  ______________________________________________
@@ -21,15 +21,15 @@ It is a basic website simply displaying information about the user's desired mat
       -CSS: for styling
       -JavaScripts: for page interactivity
 - API Interactions :-
-     - FootApi from [https://rapidapi.com/fluis.lacasse/api/footapi7](url)
+     - API-Football (by API-Sports) from [https://dashboard.api-football.com/#](url)
 - Deployment :-
     Deployed on nginx and haproxy for load balancing
 
 ***API INTERACTION***
 ______________________________________________
-The application imports the latest data about to professional football matches and players. It will then display the requested match or player with  the necessary information pertaining to them.
+The application imports the latest data on everything about to professional association football. It will then display the requested match or player with  the necessary information pertaining to them.
 
-API Documententation: via this link to access the documentation [https://rapidapi.com/fluis.lacasse/api/footapi7](url)
+API Documententation: via this link to access the documentation [https://www.api-football.com/documentation-v3](url)
 
 ***LOCAL DEVELOPMENT SETUP***
 _____________________________________________
@@ -61,13 +61,13 @@ From lb-01 , I created a certificate using 'certbot', issued and signed by Letse
 ***CHALLENGES and SOLUTIONS***
 _______________________________________________
 
-     Challenge: I could not connect to the API server .
-     solution: Working on it lol
+     Challenge: 
+     solution: 
 
 ***CREDITS and ACKNOWLEDGEMENT***
 _______________________________________________
 
-API USED: FootAPI from RapidAPI :-
-  [https://rapidapi.com/fluis.lacasse/api/footapi7](url)
+API USED: API-Football by API-Sports :- 
+  [https://dashboard.api-football.com/#](url)
 Visit the link above for its documentation.
     
