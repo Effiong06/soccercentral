@@ -12,7 +12,7 @@ It is a basic website simply displaying information about the football, from lea
  ______________________________________________
  {A link to a demo video (explaining and displaying the contents of the website)} :- [fill this in](url)
  
- Open this link to access Soccer Central :- [(https://effiong06.github.io/soccercentral/)](url)
+ Open this link to access Soccer Central :- [https://effiong06.github.io/soccercentral/](url)
  
  ***TECHNOLOGY USED***
  ______________________________________________
@@ -21,7 +21,7 @@ It is a basic website simply displaying information about the football, from lea
       -CSS: for styling
       -JavaScripts: for page interactivity
 - API Interactions :-
-     - API-Football (by API-Sports) from [(https://dashboard.api-football.com/)](url)
+     - API-Football (by API-Sports) from [https://dashboard.api-football.com/](url)
 - Deployment :-
     Deployed on Github Pages
 
@@ -29,7 +29,7 @@ It is a basic website simply displaying information about the football, from lea
 ______________________________________________
 The application imports the latest data on everything about to professional association football. It will then display the requested match or player with  the necessary information pertaining to them.
 
-API Documententation: via this link to access the documentation [(https://www.api-football.com/documentation-v3)](url)
+API Documententation: via this link to access the documentation [https://www.api-football.com/documentation-v3](url)
 
 ***LOCAL DEVELOPMENT SETUP***
 _____________________________________________
@@ -59,6 +59,6 @@ _______________________________________________
 _______________________________________________
 
 API USED: API-Football by API-Sports :- 
-  [(https://www.api-football.com/documentation-v3)](url)
+  [https://www.api-football.com/documentation-v3](url)
 Visit the link above for its documentation.
     
