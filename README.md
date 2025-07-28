@@ -12,7 +12,7 @@ It is a basic website simply displaying information about the football, from lea
  ______________________________________________
  {A link to a demo video (explaining and displaying the contents of the website)} :- [fill this in](url)
  
- Open this link to access Soccer Central :- [fill this in](url)
+ Open this link to access Soccer Central :- [(https://effiong06.github.io/soccercentral/)](url)
  
  ***TECHNOLOGY USED***
  ______________________________________________
@@ -23,7 +23,7 @@ It is a basic website simply displaying information about the football, from lea
 - API Interactions :-
      - API-Football (by API-Sports) from [(https://dashboard.api-football.com/)](url)
 - Deployment :-
-    Deployed on nginx and haproxy for load balancing
+    Deployed on Github Pages
 
 ***API INTERACTION***
 ______________________________________________
@@ -46,28 +46,19 @@ _____________________________________________
 _____________________________________________
 ***PREREQUISITES***
 
-Two web servers :-
-"Web-01" and "Web-02" (where nginx is installed, and I configured /etc/nginx/sites_available/default, I put my index.html file ( I opted to use only one file) that was used for this project, placed in the directory - /var/www/html - so that it can be accessed by visiting the IP_Address)
-    
-Load balancer :-
-  Through "lb-01" (where "haproxy" is installed to distribute the requests through those two servers. And those were done through configuring an haproxy config file ( /etc/haproxy/haproxy.cfg ), So you can access it through linking up to the IP_address of this lb-01)
-  
-***The DOMAIN NAME***
-The domain I used, was created from DotTech domain which I used to link up with the IP_Address so if you vist my domain you will get the same by visiting via IP_Address.
-    
-***SSL CERTIFICATE***
-From lb-01 , I created a certificate using 'certbot', issued and signed by Letsencrypt.
+In accordance with the announcement that the web servers were down and that we could use alternative options,
+I have deployed my site using Github Pages
     
 ***CHALLENGES and SOLUTIONS***
 _______________________________________________
 
-     Challenge: 
-     solution: 
+     Challenge: Deployment
+     solution: Switching to Github Pages
 
 ***CREDITS and ACKNOWLEDGEMENT***
 _______________________________________________
 
 API USED: API-Football by API-Sports :- 
-  [(https://dashboard.api-football.com/)](url)
+  [(https://www.api-football.com/documentation-v3)](url)
 Visit the link above for its documentation.
     
