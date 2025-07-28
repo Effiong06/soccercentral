@@ -197,16 +197,7 @@
     </div>
 
     <script>
-        const RAPIDAPI_HOST = "v3.football.api-sports.io";
-        const RAPIDAPI_KEY = "faa0442322d27055122d65ab6d1744ac";
-
-        function getApiUrl(endpoint, params = {}) {
-            const query = Object.keys(params)
-                .filter(key => params[key] !== null && params[key] !== undefined && params[key] !== '')
-                .map(key => `${key}=${params[key]}`)
-                .join('&');
-            return `https://${RAPIDAPI_HOST}/${endpoint}${query ? '?' + query : ''}`;
-        }
+        
 
         async function apiRequest(endpoint, params, loadingElId, errorElId, displayFunction) {
             hideMessage(errorElId);
