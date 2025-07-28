@@ -12,7 +12,7 @@ It is a basic website simply displaying information about the football, from lea
  ______________________________________________
  {A link to a demo video (explaining and displaying the contents of the website)} :- [fill this in](url)
  
- Open this link to access Soccer Central :- [https://effiong06.github.io/soccercentral/](url)
+ Open this link to access Soccer Central :- [(https://effiong06.github.io/soccercentral/)](url)
  
  ***TECHNOLOGY USED***
  ______________________________________________
@@ -21,7 +21,7 @@ It is a basic website simply displaying information about the football, from lea
       -CSS: for styling
       -JavaScripts: for page interactivity
 - API Interactions :-
-     - API-Football (by API-Sports) from [https://dashboard.api-football.com/](url)
+     - API-Football (by API-Sports) [[from](https://dashboard.api-football.com/)](url)
 - Deployment :-
     Deployed on Github Pages
 
