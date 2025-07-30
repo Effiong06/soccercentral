@@ -1,4 +1,5 @@
 ***SOCCER CENTRAL***
+**by Effiong Uyo**
 
 
 ***OVERVIEW***
@@ -38,6 +39,7 @@ _____________________________________________
   Clone this repo: soccercentral .
    by: git clone [[https://github.com/Effiong06/soccercentral.git](https://github.com/Effiong06/soccercentral.git)](url)
    then move inside it by: cd soccercentral 
+ 
  ***Step 2*** :-
    OPEN THE PROJECT:
      You can open the index.html file in your browser as this is just a front-end application
